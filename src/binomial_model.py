@@ -2,6 +2,32 @@
 
 import numpy as np
 
+def _binomial_engine(T, N, p, r, dt):
+
+    stocks, options = [], []
+    timeline = np.linspace(0, T, N, endpoint=True)
+
+    for n in range(N+1):
+        stock, option = [], []
+        for i in range(N-n+1):
+            x = s*u**(N-n-i)*d**i
+            if n == 0:
+                if isCall: y = max(x-k,0) 
+                else: y = max(k-x,0)
+            else:
+                y = (p*options[-1][i]+(1-p)*options[-1][i+1])*np.exp(-r*dt)
+                if isAmerican: 
+                    if isCall: y = max(x-k, y) 
+                    if isPut: y = max(k-x, y)
+            stock.append(x)
+            option.append(y)
+            
+        stocks.append(stock)
+        options.append(option)
+    stocks = stocks[::-1]
+    options = options[::-1]
+    return options[0][0], stocks, options, timeline
+
 def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_months, T, r):
     # from ch 13.4
     # option_type: 'call' or 'put'
@@ -31,32 +57,8 @@ def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_m
     p = (np.exp(r*dt)-d)/(u-d)
     if not (0 < p < 1):
         raise ValueError("Arbitrage detected.")
-    stocks, options = [], []
-    timeline = np.linspace(0, T, int(T/(dt_months/12))+1, endpoint=True)
 
-    if not (0<p<1):
-        raise ValueError("Arbitrage condition violated: check u, d, r ,dt.")
-
-    for n in range(N+1):
-        stock, option = [], []
-        for i in range(N-n+1):
-            x = s*u**(N-n-i)*d**i
-            if n == 0:
-                if isCall: y = max(x-k,0) 
-                else: y = max(k-x,0)
-            else:
-                y = (p*options[-1][i]+(1-p)*options[-1][i+1])*np.exp(-r*dt)
-                if isAmerican: 
-                    if isCall: y = max(x-k, y) 
-                    if isPut: y = max(k-x, y)
-            stock.append(x)
-            option.append(y)
-            
-        stocks.append(stock)
-        options.append(option)
-    stocks = stocks[::-1]
-    options = options[::-1]
-    return options[0][0], stocks, options, timeline
+    return _binomial_engine(T, N, p, r, dt)
 
 def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r):
     # from ch 13.7
@@ -85,30 +87,5 @@ def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r):
     p = (np.exp(r*dt)-d)/(u-d)
     if not (0 < p < 1):
         raise ValueError("Arbitrage detected.")
-    
-    stocks, options = [], []
-    timeline = np.linspace(0, T, int(T/(dt_months/12))+1, endpoint=True)
 
-    if not (0<p<1):
-        raise ValueError("Arbitrage condition violated: check u, d, r ,dt.")
-
-    for n in range(N+1):
-        stock, option = [], []
-        for i in range(N-n+1):
-            x = s*u**(N-n-i)*d**i
-            if n == 0:
-                if isCall: y = max(x-k,0) 
-                else: y = max(k-x,0)
-            else:
-                y = (p*options[-1][i]+(1-p)*options[-1][i+1])*np.exp(-r*dt)
-                if isAmerican: 
-                    if isCall: y = max(x-k, y) 
-                    if isPut: y = max(k-x, y)
-            stock.append(x)
-            option.append(y)
-            
-        stocks.append(stock)
-        options.append(option)
-    stocks = stocks[::-1]
-    options = options[::-1]
-    return options[0][0], stocks, options, timeline
+   return _binomial_engine(T, N, p, r, dt) 
