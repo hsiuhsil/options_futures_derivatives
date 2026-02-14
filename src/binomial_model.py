@@ -3,7 +3,7 @@
 import numpy as np
 
 def _binomial_engine(s, k, u, d, T, N, p, r, dt, 
-                     is_call, is_american):
+                     isCall, isAmerican):
 
     stocks, options = [], []
     timeline = np.linspace(0, T, N+1, endpoint=True)
@@ -59,7 +59,7 @@ def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_m
         raise ValueError("Arbitrage detected.")
 
     price, stocks, options, timeline = _binomial_engine(s, k, u, d, T, N, p, r, dt,
-                                                        is_call, is_american)
+                                                        isCall, isAmerican)
     
     if return_tree:
         return price, stocks, options, timeline
@@ -95,7 +95,7 @@ def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r):
         raise ValueError("Arbitrage detected.")
 
     price, stocks, options, timeline = _binomial_engine(s, k, u, d, T, N, p, r, dt,
-                                                        is_call, is_american) 
+                                                        isCall, isAmerican) 
     if return_tree:
         return price, stocks, options, timeline
     else:
