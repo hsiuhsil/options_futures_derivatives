@@ -2,10 +2,11 @@
 
 import numpy as np
 
-def _binomial_engine(T, N, p, r, dt):
+def _binomial_engine(s, k, u, d, T, N, p, r, dt, 
+                     is_call, is_american):
 
     stocks, options = [], []
-    timeline = np.linspace(0, T, N, endpoint=True)
+    timeline = np.linspace(0, T, N+1, endpoint=True)
 
     for n in range(N+1):
         stock, option = [], []
@@ -24,11 +25,10 @@ def _binomial_engine(T, N, p, r, dt):
             
         stocks.append(stock)
         options.append(option)
-    stocks = stocks[::-1]
-    options = options[::-1]
-    return options[0][0], stocks, options, timeline
 
-def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_months, T, r):
+    return options[-1][0], stocks[::-1], options[::-1], timeline
+
+def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_months, T, r, return_tree=False):
     # from ch 13.4
     # option_type: 'call' or 'put'
     # exercise_style: 'European' or 'American'
@@ -58,7 +58,13 @@ def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_m
     if not (0 < p < 1):
         raise ValueError("Arbitrage detected.")
 
-    return _binomial_engine(T, N, p, r, dt)
+    price, stocks, options, timeline = _binomial_engine(s, k, u, d, T, N, p, r, dt,
+                                                        is_call, is_american)
+    
+    if return_tree:
+        return price, stocks, options, timeline
+    else:
+        return price
 
 def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r):
     # from ch 13.7
@@ -88,4 +94,9 @@ def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r):
     if not (0 < p < 1):
         raise ValueError("Arbitrage detected.")
 
-   return _binomial_engine(T, N, p, r, dt) 
+    price, stocks, options, timeline = _binomial_engine(s, k, u, d, T, N, p, r, dt,
+                                                        is_call, is_american) 
+    if return_tree:
+        return price, stocks, options, timeline
+    else:
+        return price
