@@ -3,7 +3,7 @@
 import numpy as np
 
 def _binomial_engine(s, k, u, d, T, N, p, r, dt, 
-                     isCall, isAmerican):
+                     isCall, isPut, isAmerican):
 
     stocks, options = [], []
     timeline = np.linspace(0, T, N+1, endpoint=True)
@@ -42,7 +42,9 @@ def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_m
 
     if option_type not in ('call','put'):
         raise ValueError("option_type is either `call` or `put`")
-    
+    if exercise_style not in ("European", "American"):
+        raise ValueError("exercise_style must be 'European' or 'American'")    
+
     isCall, isPut = (True, False) if option_type == 'call' else (False, True)
     isAmerican, isEuropean = (True, False) if exercise_style == 'American' else (False, True)
 
@@ -59,14 +61,14 @@ def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_m
         raise ValueError("Arbitrage detected.")
 
     price, stocks, options, timeline = _binomial_engine(s, k, u, d, T, N, p, r, dt,
-                                                        isCall, isAmerican)
+                                                        isCall, isPut, isAmerican)
     
     if return_tree:
         return price, stocks, options, timeline
     else:
         return price
 
-def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r):
+def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r, return_tree=False):
     # from ch 13.7
     # option_type: 'call' or 'put'
     # exercise_style: 'European' or 'American'
@@ -79,7 +81,10 @@ def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r):
 
     if option_type not in ('call','put'):
         raise ValueError("option_type is either `call` or `put`")
-    
+
+    if exercise_style not in ("European", "American"):
+        raise ValueError("exercise_style must be 'European' or 'American'")   
+ 
     isCall, isPut = (True, False) if option_type == 'call' else (False, True)
     isAmerican, isEuropean = (True, False) if exercise_style == 'American' else (False, True)
 
@@ -95,7 +100,7 @@ def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r):
         raise ValueError("Arbitrage detected.")
 
     price, stocks, options, timeline = _binomial_engine(s, k, u, d, T, N, p, r, dt,
-                                                        isCall, isAmerican) 
+                                                        isCall, isPut, isAmerican) 
     if return_tree:
         return price, stocks, options, timeline
     else:
