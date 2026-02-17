@@ -28,7 +28,7 @@ def _binomial_engine(s, k, u, d, T, N, p, r, dt,
 
     return options[-1][0], stocks[::-1], options[::-1], timeline
 
-def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_months, T, r, return_tree=False):
+def option_price_no_volatility(option_type, exercise_style, s, k, up, down, T, N, r, return_tree=False):
     # from ch 13.4
     # option_type: 'call' or 'put'
     # exercise_style: 'European' or 'American'
@@ -36,8 +36,8 @@ def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_m
     # k: the strike price
     # up: the amount that the stock price will move up in percentage
     # down: the amount that the stock price will move down in percentage
-    # dt_months: the duration of each step (in months)
     # T: the duration of all steps (in years)
+    # N: the number of time steps in the binomial tree
     # r: the risk-free rate 
 
     if option_type not in ('call','put'):
@@ -48,7 +48,6 @@ def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_m
     isCall, isPut = (True, False) if option_type == 'call' else (False, True)
     isAmerican, isEuropean = (True, False) if exercise_style == 'American' else (False, True)
 
-    N = int(T/(dt_months/12))
     dt = T/N
 
     if abs(N * dt - T) > 1e-10:
@@ -68,15 +67,15 @@ def option_price_no_volatility(option_type, exercise_style, s, k, up, down, dt_m
     else:
         return price
 
-def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r, return_tree=False):
+def option_price(option_type, exercise_style, s, k, vol, T, N, r, return_tree=False):
     # from ch 13.7
     # option_type: 'call' or 'put'
     # exercise_style: 'European' or 'American'
     # s: the current stock price
     # k: the strike price
     # vol: the volatility (0<vol<1)
-    # dt_months: the duration of each step (in months)
     # T: the duration of all steps (in years)
+    # N: the number of time steps in the binomial tree
     # r: the risk-free rate 
 
     if option_type not in ('call','put'):
@@ -88,7 +87,6 @@ def option_price(option_type, exercise_style, s, k, vol, dt_months, T, r, return
     isCall, isPut = (True, False) if option_type == 'call' else (False, True)
     isAmerican, isEuropean = (True, False) if exercise_style == 'American' else (False, True)
 
-    N = int(T/(dt_months/12))
     dt = T/N
     if abs(N * dt - T) > 1e-10:
         raise ValueError("Inconsistent step size.")
