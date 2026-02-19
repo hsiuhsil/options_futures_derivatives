@@ -11,7 +11,7 @@ def delta(option_type, s, k, r, sigma, T):
     if option_type=='call':
         return cumulative_prob(d1)
     elif option_type=='put':
-        return cumulative_prob(d1) - 1
+        return -cumulative_prob(-d1)
 
 def theta(option_type, s, k, r, sigma, T):
 
