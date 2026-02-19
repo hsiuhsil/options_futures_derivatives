@@ -70,7 +70,7 @@ def theta(option_type, s, k, r, sigma, T, q=0):
     else:
         raise ValueError("option_type must be 'call' or 'put'")
 
-def gamma(s, k, r, sigma, T):
+def gamma(s, k, r, sigma, T, q=0):
     """
     Compute the gamma of a European option (call or put).
     
@@ -80,6 +80,7 @@ def gamma(s, k, r, sigma, T):
         r (float): Risk-free rate
         sigma (float): Volatility
         T (float): Time to maturity (years)
+        q (float): dividend yield
 
     Returns:
         float: Option gamma
@@ -88,8 +89,8 @@ def gamma(s, k, r, sigma, T):
         raise ValueError("Volatility must be positive.")
     if T <= 0:
         raise ValueError("Maturity must be positive.")
-    d1, _ = calculate_d1_d2(s, k, r, sigma, T, q=0)
-    return norm.pdf(d1) / (s*sigma*np.sqrt(T))
+    d1, _ = calculate_d1_d2(s, k, r, sigma, T, q)
+    return norm.pdf(d1)*np.exp(-q*T) / (s*sigma*np.sqrt(T))
 
 def vega(s, k, r, sigma, T):
     """
