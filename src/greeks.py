@@ -115,7 +115,7 @@ def vega(s, k, r, sigma, T, q=0):
     d1, _ = calculate_d1_d2(s, k, r, sigma, T, q)
     return s*np.sqrt(T)*norm.pdf(d1)*np.exp(-q*T)/100
 
-def rho(option_type, s, k, r, sigma, T):
+def rho(option_type, s, k, r, sigma, T, q=0):
     """
     Compute the rho of a European call option or a European put option.
     
@@ -126,7 +126,8 @@ def rho(option_type, s, k, r, sigma, T):
         r (float): Risk-free rate
         sigma (float): Volatility
         T (float): Time to maturity (years)
- 
+        q (float): dividend yield 
+
     Returns:
         float: Option rho
     """
@@ -135,7 +136,7 @@ def rho(option_type, s, k, r, sigma, T):
         raise ValueError("Volatility must be positive.")
     if T <= 0:
         raise ValueError("Maturity must be positive.")
-    _, d2 = calculate_d1_d2(s, k, r, sigma, T, q=0)
+    _, d2 = calculate_d1_d2(s, k, r, sigma, T, q)
    
     if option_type=='call':
         return k*T*np.exp(-r*T)*cumulative_prob(d2)
