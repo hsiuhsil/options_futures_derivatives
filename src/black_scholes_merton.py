@@ -5,6 +5,9 @@ def cumulative_prob(x):
     return norm.cdf(x, loc=0, scale=1)
 
 def calculate_d1_d2(s, k, r, sigma, T, q=0):
+
+    if s<= 0 or k <= 0:
+        raise ValueError("Stock price and strike must be positive.")
     if sigma <= 0 or T <= 0:
         raise ValueError("Volatility and maturity must be positive.")
 
