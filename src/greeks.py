@@ -32,18 +32,41 @@ def delta(option_type, s, k, r, sigma, T, q=0):
     else:
         raise ValueError("option_type must be 'call' or 'put'")
 
-def theta(option_type, s, k, r, sigma, T):
+def theta(option_type, s, k, r, sigma, T, q=0):
+    """
+    Compute the theta of a European call option or a European put option.
+    
+    Parameters:
+        option_type (string): either 'call' or 'put'
+        s (float): Current stock price
+        k (float): Strike price
+        r (float): Risk-free rate
+        sigma (float): Volatility
+        T (float): Time to maturity (years)
+        q (float): dividend yield
+ 
+    Returns:
+        float: Option theta
+    """
 
     if sigma <= 0:
         raise ValueError("Volatility must be positive.")
     if T <= 0:
         raise ValueError("Maturity must be positive.")
-    d1, d2 = calculate_d1_d2(s, k, r, sigma, T, q=0)
+    d1, d2 = calculate_d1_d2(s, k, r, sigma, T, q)
     
     if option_type=='call':
-        return -s*norm.pdf(d1)*sigma/(2*np.sqrt(T)) - r*k*np.exp(-r*T)*cumulative_prob(d2)
+        return (
+            - s*norm.pdf(d1)*sigma*np.exp(-q*T)/(2*np.sqrt(T)) 
+            + q*s*cumulative_prob(d1)*np.exp(-q*T) 
+            - r*k*np.exp(-r*T)*cumulative_prob(d2)
+        )
     elif option_type=='put':
-        return -s*norm.pdf(d1)*sigma/(2*np.sqrt(T)) + r*k*np.exp(-r*T)*cumulative_prob(-d2)
+        return (
+            - s*norm.pdf(d1)*sigma*np.exp(-q*T)/(2*np.sqrt(T)) 
+            - q*s*cumulative_prob(-d1)*np.exp(-q*T) 
+            + r*k*np.exp(-r*T)*cumulative_prob(-d2)
+        )
     else:
         raise ValueError("option_type must be 'call' or 'put'")
 
