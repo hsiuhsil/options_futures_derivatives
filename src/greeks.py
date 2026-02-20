@@ -19,9 +19,9 @@ def delta(option_type, s, k, r, sigma, T, q=0):
         float: Option delta
     """
 
-    if sigma <= 0:
+    if np.any(sigma <= 0):
         raise ValueError("Volatility must be positive.")
-    if T <= 0:
+    if np.any(T <= 0):
         raise ValueError("Maturity must be positive.")
     d1, _ = calculate_d1_d2(s, k, r, sigma, T, q)
 
@@ -49,9 +49,9 @@ def theta(option_type, s, k, r, sigma, T, q=0):
         float: Option theta
     """
 
-    if sigma <= 0:
+    if np.any(sigma <= 0):
         raise ValueError("Volatility must be positive.")
-    if T <= 0:
+    if np.any(T <= 0):
         raise ValueError("Maturity must be positive.")
     d1, d2 = calculate_d1_d2(s, k, r, sigma, T, q)
     
@@ -85,9 +85,9 @@ def gamma(s, k, r, sigma, T, q=0):
     Returns:
         float: Option gamma
     """
-    if sigma <= 0:
+    if np.any(sigma <= 0):
         raise ValueError("Volatility must be positive.")
-    if T <= 0:
+    if np.any(T <= 0):
         raise ValueError("Maturity must be positive.")
     d1, _ = calculate_d1_d2(s, k, r, sigma, T, q)
     return norm.pdf(d1)*np.exp(-q*T) / (s*sigma*np.sqrt(T))
@@ -108,9 +108,9 @@ def vega(s, k, r, sigma, T, q=0):
         float: Option vega (per 1% change in volatility)
     """
 
-    if sigma <= 0:
+    if np.any(sigma <= 0):
         raise ValueError("Volatility must be positive.")
-    if T <= 0:
+    if np.any(T <= 0):
         raise ValueError("Maturity must be positive.")
     d1, _ = calculate_d1_d2(s, k, r, sigma, T, q)
     return s*np.sqrt(T)*norm.pdf(d1)*np.exp(-q*T)/100
@@ -132,9 +132,9 @@ def rho(option_type, s, k, r, sigma, T, q=0):
         float: Option rho
     """
 
-    if sigma <= 0:
+    if np.any(sigma <= 0):
         raise ValueError("Volatility must be positive.")
-    if T <= 0:
+    if np.any(T <= 0):
         raise ValueError("Maturity must be positive.")
     _, d2 = calculate_d1_d2(s, k, r, sigma, T, q)
    
