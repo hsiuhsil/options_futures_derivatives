@@ -1,10 +1,11 @@
 import numpy as np
 from scipy.stats import norm
 from black_scholes_merton import cumulative_prob, calculate_d1_d2
+from binomial_model import price_option_tree, price_option_tree_no_volatility
 
-def delta(option_type, s, k, r, sigma, T, q=0):
+def delta_bsm(option_type, s, k, r, sigma, T, q=0):
     """
-    Compute the delta of a European call option or a European put option.
+    Compute the delta of a European call option or a European put option using the Black-Scholes-Merton model.
     
     Parameters:
         option_type (string): either 'call' or 'put'
@@ -32,9 +33,9 @@ def delta(option_type, s, k, r, sigma, T, q=0):
     else:
         raise ValueError("option_type must be 'call' or 'put'")
 
-def theta(option_type, s, k, r, sigma, T, q=0):
+def theta_bsm(option_type, s, k, r, sigma, T, q=0):
     """
-    Compute the theta of a European call option or a European put option.
+    Compute the theta of a European call option or a European put option using the Black-Scholes-Merton model.
     
     Parameters:
         option_type (string): either 'call' or 'put'
@@ -70,9 +71,9 @@ def theta(option_type, s, k, r, sigma, T, q=0):
     else:
         raise ValueError("option_type must be 'call' or 'put'")
 
-def gamma(s, k, r, sigma, T, q=0):
+def gamma_bsm(s, k, r, sigma, T, q=0):
     """
-    Compute the gamma of a European option (call or put).
+    Compute the gamma of a European option (call or put) using the Black-Scholes-Merton model.
     
     Parameters:
         s (float): Current stock price
@@ -92,9 +93,9 @@ def gamma(s, k, r, sigma, T, q=0):
     d1, _ = calculate_d1_d2(s, k, r, sigma, T, q)
     return norm.pdf(d1)*np.exp(-q*T) / (s*sigma*np.sqrt(T))
 
-def vega(s, k, r, sigma, T, q=0):
+def vega_bsm(s, k, r, sigma, T, q=0):
     """
-    Compute the vega of a European option (call or put).
+    Compute the vega of a European option (call or put) using the Black-Scholes-Merton model.
     
     Parameters:
         s (float): Current stock price
@@ -115,9 +116,9 @@ def vega(s, k, r, sigma, T, q=0):
     d1, _ = calculate_d1_d2(s, k, r, sigma, T, q)
     return s*np.sqrt(T)*norm.pdf(d1)*np.exp(-q*T)/100
 
-def rho(option_type, s, k, r, sigma, T, q=0):
+def rho_bsm(option_type, s, k, r, sigma, T, q=0):
     """
-    Compute the rho of a European call option or a European put option.
+    Compute the rho of a European call option or a European put option using the Black-Scholes-Merton model.
     
     Parameters:
         option_type (string): either 'call' or 'put'
@@ -144,3 +145,33 @@ def rho(option_type, s, k, r, sigma, T, q=0):
         return -k*T*np.exp(-r*T)*cumulative_prob(-d2)
     else:
         raise ValueError("option_type must be 'call' or 'put'")
+
+def delta_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
+    """
+    Compute the delta of a European call option or a European put option using the binomial tree  model.
+
+    Parameters:
+        option_type (string): either 'call' or 'put'
+        s (float): Current stock price
+        k (float): Strike price
+        r (float): Risk-free rate
+        sigma (float): Volatility
+        T (float): Time to maturity (years)
+        q (float): dividend yield
+ 
+    Returns:
+        float: Option delta
+    """
+
+    if N <= 0:
+        raise ValueError("Number of steps N must be positive.")
+    if np.any(sigma <= 0):
+        raise ValueError("Volatility must be positive.")
+    if np.any(T <= 0):
+        raise ValueError("Maturity must be positive.")
+
+    if option_type not in ['call','put']:
+        raise ValueError("option_type must be 'call' or 'put'")
+
+    price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r, q,  return_tree=True)
+    return (options[1][0]-options[1][1]) / (stocks[1][0]-stocks[1][1])     

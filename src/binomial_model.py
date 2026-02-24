@@ -28,7 +28,7 @@ def _binomial_engine(s, k, u, d, T, N, p, r, dt,
 
     return options[-1][0], stocks[::-1], options[::-1], timeline
 
-def option_price_no_volatility(option_type, exercise_style, s, k, up, down, T, N, r, return_tree=False):
+def price_option_tree_no_volatility(option_type, exercise_style, s, k, up, down, T, N, r, q=0, return_tree=False):
     # from ch 13.4
     # option_type: 'call' or 'put'
     # exercise_style: 'European' or 'American'
@@ -39,6 +39,7 @@ def option_price_no_volatility(option_type, exercise_style, s, k, up, down, T, N
     # T: the duration of all steps (in years)
     # N: the number of time steps in the binomial tree
     # r: the risk-free rate 
+
 
     if option_type not in ('call','put'):
         raise ValueError("option_type is either `call` or `put`")
@@ -67,16 +68,17 @@ def option_price_no_volatility(option_type, exercise_style, s, k, up, down, T, N
     else:
         return price
 
-def option_price(option_type, exercise_style, s, k, vol, T, N, r, return_tree=False):
+def price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0,  return_tree=False):
     # from ch 13.7
     # option_type: 'call' or 'put'
     # exercise_style: 'European' or 'American'
     # s: the current stock price
     # k: the strike price
-    # vol: the volatility (0<vol<1)
+    # sigma: the volatility (0<sigma<1)
     # T: the duration of all steps (in years)
     # N: the number of time steps in the binomial tree
     # r: the risk-free rate 
+    # q: the dividend rate
 
     if option_type not in ('call','put'):
         raise ValueError("option_type is either `call` or `put`")
@@ -91,9 +93,9 @@ def option_price(option_type, exercise_style, s, k, vol, T, N, r, return_tree=Fa
     if abs(N * dt - T) > 1e-10:
         raise ValueError("Inconsistent step size.")
     
-    u = np.exp(vol*np.sqrt(dt))
+    u = np.exp(sigma*np.sqrt(dt))
     d = 1/u
-    p = (np.exp(r*dt)-d)/(u-d)
+    p = (np.exp((r-q)*dt)-d)/(u-d)
     if not (0 < p < 1):
         raise ValueError("Arbitrage detected.")
 
