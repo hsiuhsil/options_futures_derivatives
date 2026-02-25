@@ -154,9 +154,10 @@ def delta_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
         option_type (string): either 'call' or 'put'
         s (float): Current stock price
         k (float): Strike price
-        r (float): Risk-free rate
         sigma (float): Volatility
         T (float): Time to maturity (years)
+        N (int): Number of steps
+        r (float): Risk-free rate
         q (float): dividend yield
  
     Returns:
@@ -176,6 +177,43 @@ def delta_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
     price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r, q,  return_tree=True)
     return (options[1][0]-options[1][1]) / (stocks[1][0]-stocks[1][1])  
 
+def theta_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
+    """
+    Compute the theta of a European or American option using the binomial tree model.
+
+    Parameters:
+        option_type (string): either 'call' or 'put'
+        s (float): Current stock price
+        k (float): Strike price
+        sigma (float): Volatility
+        T (float): Time to maturity (years)
+        N (int): Number of steps
+        r (float): Risk-free rate
+        q (float): dividend yield
+
+    Returns:
+        float: Option theta (per year)
+    """
+
+    if N < 2:
+        raise ValueError("Number of steps N must be >= 2.")
+    if sigma <= 0:
+        raise ValueError("Volatility must be positive.")
+    if T <= 0:
+        raise ValueError("Maturity must be positive.")
+    if option_type not in ['call', 'put']:
+        raise ValueError("option_type must be 'call' or 'put'")
+
+    price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r, q, return_tree=True)
+
+    dt = T / N
+
+    V0 = options[0][0]
+    V_ud = options[2][1]
+
+    theta = (V_ud - V0) / (2 * dt)
+
+    return theta
    
 def gamma_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
     """
@@ -185,11 +223,12 @@ def gamma_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
         option_type (string): either 'call' or 'put'
         s (float): Current stock price
         k (float): Strike price
-        r (float): Risk-free rate
         sigma (float): Volatility
         T (float): Time to maturity (years)
+        N (int): Number of steps
+        r (float): Risk-free rate
         q (float): dividend yield
- 
+
     Returns:
         float: Option gamma
     """
