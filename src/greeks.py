@@ -174,4 +174,38 @@ def delta_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
         raise ValueError("option_type must be 'call' or 'put'")
 
     price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r, q,  return_tree=True)
-    return (options[1][0]-options[1][1]) / (stocks[1][0]-stocks[1][1])     
+    return (options[1][0]-options[1][1]) / (stocks[1][0]-stocks[1][1])  
+
+   
+def gamma_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
+    """
+    Compute the gamma of a European call option or a European put option using the binomial tree  model.
+
+    Parameters:
+        option_type (string): either 'call' or 'put'
+        s (float): Current stock price
+        k (float): Strike price
+        r (float): Risk-free rate
+        sigma (float): Volatility
+        T (float): Time to maturity (years)
+        q (float): dividend yield
+ 
+    Returns:
+        float: Option gamma
+    """
+
+    if N <= 1:
+        raise ValueError("Number of steps N must be >= 2.")
+    if np.any(sigma <= 0):
+        raise ValueError("Volatility must be positive.")
+    if np.any(T <= 0):
+        raise ValueError("Maturity must be positive.")
+
+    if option_type not in ['call','put']:
+        raise ValueError("option_type must be 'call' or 'put'")
+
+    price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r, q,  return_tree=True)
+    delta_up = (options[2][0] - options[2][1]) / (stocks[2][0] - stocks[2][1])
+    delta_down = (options[2][1] - options[2][2]) / (stocks[2][1] - stocks[2][2])
+
+    return (delta_up - delta_down) / (stocks[1][0] - stocks[1][1]) 
