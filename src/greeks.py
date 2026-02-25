@@ -217,7 +217,7 @@ def theta_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
    
 def gamma_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
     """
-    Compute the gamma of a European call option or a European put option using the binomial tree  model.
+    Compute the gamma of a European call option or a European put option using the binomial tree model.
 
     Parameters:
         option_type (string): either 'call' or 'put'
@@ -247,4 +247,38 @@ def gamma_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
     delta_up = (options[2][0] - options[2][1]) / (stocks[2][0] - stocks[2][1])
     delta_down = (options[2][1] - options[2][2]) / (stocks[2][1] - stocks[2][2])
 
-    return (delta_up - delta_down) / (stocks[1][0] - stocks[1][1]) 
+    return (delta_up - delta_down) / (stocks[1][0] - stocks[1][1])
+
+ 
+def vega_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0, epsilon=1e-4):
+    """
+    Compute the vega of a European option (call or put) using the binomial tree model. 
+
+    Parameters:
+        option_type (string): either 'call' or 'put'
+        s (float): Current stock price
+        k (float): Strike price
+        sigma (float): Volatility
+        T (float): Time to maturity (years)
+        N (int): Number of steps
+        r (float): Risk-free rate
+        q (float): dividend yield
+        epsilon (float): a tiny amount of perturbation
+
+    Returns:
+        float: Option vega (per 1% change in volatility)
+    """
+
+    if np.any(sigma <= 0):
+        raise ValueError("Volatility must be positive.")
+    if np.any(T <= 0):
+        raise ValueError("Maturity must be positive.")
+    if np.any(epsilon <= 0):
+        raise ValueError("epsilon must be positive.")
+    if np.any(sigma-epsilon <0):
+        raise ValueError("epsilon too large relative to sigma")
+    
+    price1 = price_option_tree(option_type, exercise_style, s, k, sigma+epsilon, T, N, r, q, return_tree=False)
+    price2 = price_option_tree(option_type, exercise_style, s, k, sigma-epsilon, T, N, r, q, return_tree=False)
+    vega = (price1 - price2)/(2*epsilon)
+    return vega / 100
