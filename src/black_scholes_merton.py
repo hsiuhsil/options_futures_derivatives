@@ -32,7 +32,7 @@ def calculate_d1_d2(s, k, r, sigma, T, q=0):
     d2 = d1 - sigma * np.sqrt(T)
     return d1, d2
 
-def price_option_bsm(option_type, exercise_style, s, k, T, r, q, sigma):
+def price_option_bsm(option_type, exercise_style, s, k, r, sigma, T, q):
 
     if exercise_style!='European':
         raise ValueError("BSM does not apply to American put options")

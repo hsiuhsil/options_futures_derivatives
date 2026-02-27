@@ -174,7 +174,7 @@ def delta_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
     if option_type not in ['call','put']:
         raise ValueError("option_type must be 'call' or 'put'")
 
-    price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r, q,  return_tree=True)
+    price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, r, sigma, T, N, q, return_tree=True)
     return (options[1][0]-options[1][1]) / (stocks[1][0]-stocks[1][1])  
 
 def theta_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
@@ -204,7 +204,7 @@ def theta_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
     if option_type not in ['call', 'put']:
         raise ValueError("option_type must be 'call' or 'put'")
 
-    price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r, q, return_tree=True)
+    price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, r, sigma, T, N, q, return_tree=True)
 
     dt = T / N
 
@@ -243,7 +243,7 @@ def gamma_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0):
     if option_type not in ['call','put']:
         raise ValueError("option_type must be 'call' or 'put'")
 
-    price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r, q,  return_tree=True)
+    price, stocks, options, timeline = price_option_tree(option_type, exercise_style, s, k, r, sigma, T, N, q, return_tree=True)
     delta_up = (options[2][0] - options[2][1]) / (stocks[2][0] - stocks[2][1])
     delta_down = (options[2][1] - options[2][2]) / (stocks[2][1] - stocks[2][2])
 
@@ -278,8 +278,8 @@ def vega_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0, epsilon=1e
     if np.any(sigma-epsilon <0):
         raise ValueError("epsilon too large relative to sigma")
     
-    price1 = price_option_tree(option_type, exercise_style, s, k, sigma+epsilon, T, N, r, q, return_tree=False)
-    price2 = price_option_tree(option_type, exercise_style, s, k, sigma-epsilon, T, N, r, q, return_tree=False)
+    price1 = price_option_tree(option_type, exercise_style, s, k, r, sigma+epsilon, T, N, q, return_tree=False)
+    price2 = price_option_tree(option_type, exercise_style, s, k, r, sigma-epsilon, T, N, q, return_tree=False)
     vega = (price1 - price2)/(2*epsilon)
     return vega / 100
 
@@ -311,6 +311,6 @@ def rho_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0, epsilon=1e-
     if epsilon>1:
         raise ValueError("epsilon is too large")   
  
-    price1 = price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r+epsilon, q, return_tree=False)
-    price2 = price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r-epsilon, q, return_tree=False)
+    price1 = price_option_tree(option_type, exercise_style, s, k, r+epsilon, sigma, T, N, q, return_tree=False)
+    price2 = price_option_tree(option_type, exercise_style, s, k, r-epsilon, sigma, T, N, q, return_tree=False)
     return (price1 - price2)/(2*epsilon)

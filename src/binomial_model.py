@@ -68,7 +68,7 @@ def price_option_tree_no_volatility(option_type, exercise_style, s, k, up, down,
     else:
         return price
 
-def price_option_tree(option_type, exercise_style, s, k, sigma, T, N, r, q=0,  return_tree=False):
+def price_option_tree(option_type, exercise_style, s, k, r, sigma, T, N, q=0, return_tree=False):
     # from ch 13.7
     # option_type: 'call' or 'put'
     # exercise_style: 'European' or 'American'
