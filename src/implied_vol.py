@@ -3,6 +3,7 @@ from binomial_model import price_option_tree
 from greeks import vega_bsm
 
 import numpy as np
+from scipy import optimize
 
 def implied_vol_Newton(option_type, exercise_style, price, s, k, r, T, q,
                        sigma0=0.1, tol=1e-8, max_iter=500):
@@ -110,3 +111,34 @@ def implied_vol_bisect(option_type, exercise_style, price, s, k, r, T, q,
 
     print("Warning: Bisection method did not converge within max_iter")
     return None
+
+def implied_vol_brent(option_type, exercise_style, price, s, k, r, T, q,
+                       sigmaLow=1e-4, sigmaHigh=5):
+    """
+    Compute the implied volatility of a European call option or a European put option using the Brent's method.
+    
+    Parameters:
+        option_type (string): either 'call' or 'put'
+        exercise_style (string): must be 'European'
+        price (float): market option price
+        s (float): Current stock price
+        k (float): Strike price
+        r (float): Risk-free rate
+        T (float): Time to maturity (years)
+        q (float): dividend yield
+        sigmaLow (float): initial volatility lower bound
+        sigmaHigh (float): initial volatility upper bound
+
+    Returns:
+        float: Implied volatility
+    """
+
+    if exercise_style != 'European':
+        raise ValueError("Brent method implemented only for European options.")
+
+    sigma = optimize.brentq(
+        lambda: sigma: price_option_bsm(option_type=option_type, exercise_style=exercise_style,
+                                        s=s, k=k, r=r, sigma=sigma, T=T, q=q) - price, 
+        sigmaLow, sigmaHigh
+    )
+    return sigma
