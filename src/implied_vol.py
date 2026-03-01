@@ -1,12 +1,10 @@
 from black_scholes_merton import price_option_bsm
 from binomial_model import price_option_tree
 from greeks import vega_bsm
-
-import numpy as np
 from scipy import optimize
 
 def implied_vol_Newton(option_type, exercise_style, price, s, k, r, T, q,
-                       sigma0=0.1, tol=1e-8, max_iter=500):
+                       sigma0=0.1, tol=1e-8, max_iter=500, return_history=False):
     """
     Compute the implied volatility of a European call option or a European put option using the Newton-Raphson method.
     
@@ -22,15 +20,18 @@ def implied_vol_Newton(option_type, exercise_style, price, s, k, r, T, q,
         sigma0 (float): initial volatility guess
         tol (float): tolerance for price difference
         max_iter (int): maximum number of iterations
-
+        return_history (bool): If True, return the sequence of volatility estimates during iteration.
     Returns:
-        float: Implied volatility
+        float or tuple: 
+            If return_history is False, returns the implied volatility.
+            If return_history is True, returns (implied volatility, sigma_history).
     """
 
     if exercise_style != 'European':
         raise ValueError("Newton method implemented only for European options.")
 
     sigma = sigma0
+    sigma_history = [sigma] if return_history else None
 
     for _ in range(max_iter):
 
@@ -41,7 +42,7 @@ def implied_vol_Newton(option_type, exercise_style, price, s, k, r, T, q,
 
         # check the convergence
         if abs(diff)<tol:
-            return sigma
+            return [sigma, sigma_history] if return_history else sigma
 
         # prevent division by very small vol
         if abs(vega)<1e-8:
@@ -53,12 +54,14 @@ def implied_vol_Newton(option_type, exercise_style, price, s, k, r, T, q,
         if sigma<=0: 
             sigma = 1e-4
 
-    if abs(diff) < tol:
-        return sigma
-    else: 
-        print("Newton-Raphson did not converge, try Bisection") 
-        implied_vol_bisect(option_type, exercise_style, price, s, k, r, T, q,
-                           sigmaLow=1e-4, sigmaHigh=5, tol=1e-8, max_iter=500)
+        if return_history:
+            sigma_history.append(sigma)
+
+    print("Newton-Raphson did not converge, try Bisection") 
+    sigma_bisect =  implied_vol_bisect(option_type, exercise_style, price, s, k, r, T, q,
+                                       sigmaLow=1e-4, sigmaHigh=5, tol=1e-8, max_iter=500)
+
+    return (sigma_bisect, sigma_history) if return_history else sigma_bisect
 
 def implied_vol_bisect(option_type, exercise_style, price, s, k, r, T, q,
                        sigmaLow=1e-4, sigmaHigh=5, tol=1e-8, max_iter=500):
