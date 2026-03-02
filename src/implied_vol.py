@@ -21,6 +21,7 @@ def implied_vol_Newton(option_type, exercise_style, price, s, k, r, T, q,
         tol (float): tolerance for price difference
         max_iter (int): maximum number of iterations
         return_history (bool): If True, return the sequence of volatility estimates during iteration.
+
     Returns:
         float or tuple: 
             If return_history is False, returns the implied volatility.
@@ -64,7 +65,7 @@ def implied_vol_Newton(option_type, exercise_style, price, s, k, r, T, q,
     return (sigma_bisect, sigma_history) if return_history else sigma_bisect
 
 def implied_vol_bisect(option_type, exercise_style, price, s, k, r, T, q,
-                       sigmaLow=1e-4, sigmaHigh=5, tol=1e-8, max_iter=500):
+                       sigmaLow=1e-4, sigmaHigh=5, tol=1e-8, max_iter=500, return_history=False):
     """
     Compute the implied volatility of a European call option or a European put option using the Bisection method.
     
@@ -81,9 +82,12 @@ def implied_vol_bisect(option_type, exercise_style, price, s, k, r, T, q,
         sigmaHigh (float): initial volatility upper bound
         tol (float): tolerance for price difference
         max_iter (int): maximum number of iterations
+        return_history (bool): If True, return the sequence of volatility estimates during iteration.
 
     Returns:
-        float: Implied volatility
+        float or tuple: 
+            If return_history is False, returns the implied volatility.
+            If return_history is True, returns (implied volatility, sigma_history).
     """
 
     if exercise_style != 'European':
@@ -94,26 +98,31 @@ def implied_vol_bisect(option_type, exercise_style, price, s, k, r, T, q,
                                         s=s, k=k, r=r, sigma=sigmaLow, T=T, q=q)
     price_bsmHigh = price_option_bsm(option_type=option_type, exercise_style=exercise_style,
 	                                s=s, k=k, r=r, sigma=sigmaHigh, T=T, q=q)
-    
-    if(price_bsmLow - price) * (price_bsmHigh - price) >= 0:
+    fLow = price_bsmLow - price
+    fHigh = price_bsmHigh - price 
+    if fLow * fHigh >= 0:
         raise ValueError("volatility is outside of [sigmaLow, sigmaHigh]")
+
+    sigma_history = [] if return_history else None   
 
     for _ in range(max_iter):
         sigmaMid = (sigmaLow+sigmaHigh) / 2
+        if return_history: sigma_history.append(sigmaMid)
+
         price_bsmMid = price_option_bsm(option_type=option_type, exercise_style=exercise_style,
                                         s=s, k=k, r=r, sigma=sigmaMid, T=T, q=q)
-        if(price_bsmLow - price) * (price_bsmMid - price)<0:
+        fMid = price_bsmMid - price
+        if fLow * fMid < 0:
             sigmaHigh = sigmaMid
-            price_bsmHigh = price_bsmMid
+            fHigh = fMid
         else: 
             sigmaLow = sigmaMid
-            price_bsmLow = price_bsmMid
+            fLow = fMid
 
         if abs(price_bsmMid - price) < tol:
-            return sigmaMid
+            return (sigmaMid, sigma_history) if return_history else sigmaMid
 
-    print("Warning: Bisection method did not converge within max_iter")
-    return None
+    raise RuntimeError("Bisection method did not converge within max_iter")
 
 def implied_vol_brent(option_type, exercise_style, price, s, k, r, T, q,
                        sigmaLow=1e-4, sigmaHigh=5):
