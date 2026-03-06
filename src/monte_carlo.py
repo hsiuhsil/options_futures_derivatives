@@ -1,4 +1,5 @@
 import numpy as np
+from utilities import option_payoff
 
 def simulate_terminal_prices_mc(s, r, sigma, T, q, n_paths=1000, antithetic=False, seed=None):
 
@@ -28,15 +29,15 @@ def price_option_mc(option_type, exercise_style, s, k, r, sigma, T, q, n_paths=1
         # known expectation
         control_mean = s*np.exp(-q*T)
         cov = np.cov(payoffs, discounted_control)[0,1]
-        var_control = np.var(discounted_control)
+        var_control = np.var(discounted_control, ddof=1)
         beta = cov / var_control
-
+        
         adjusted = discounted_payoffs + beta*(control_mean - discounted_control)
         price = np.mean(adjusted)
-        std_err = np.std(adjusted) / np.sqrt(n_paths)
+        std_err = np.std(adjusted, ddof=1) / np.sqrt(n_paths)
 
     else:
         price = np.mean(discounted_payoffs)
-        std_err = np.std(discounted_payoffs)/np.sqrt(n_paths)
+        std_err = np.std(discounted_payoffs, ddof=1)/np.sqrt(n_paths)
 
     return price, std_err
