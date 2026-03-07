@@ -1,3 +1,4 @@
+import numpy as np
 from scipy import optimize
 
 from black_scholes_merton import price_option_bsm
@@ -158,10 +159,22 @@ def implied_vol_brent(option_type, exercise_style, price, s, k, r, T, q,
                                     s=s, k=k, r=r, sigma=sigma, T=T, q=q) - price
     elif exercise_style == 'American':
         def objective(sigma):
-            return price_option_tree(option_type=option_type, exercise_style=exercise_style,
-                                     s=s, k=k, r=r, sigma=sigma, T=T, N=N, q=q) - price
+            try:
+                return price_option_tree(option_type=option_type, exercise_style=exercise_style,
+                                         s=s, k=k, r=r, sigma=sigma, T=T, N=N, q=q) - price
+            except ValueError:
+                return np.nan
     else:
         raise ValueError("exercise_style must be 'European' or 'American'.")
+
+    # check that the root is bracketed
+#    if exercise_style == 'American':
+#        f_low = objective(sigma_low)
+#        f_high = objective(sigma_high)
+#        assert f_low * f_high < 0, (
+#            f"Brent method cannot run: f(sigma_low) * f(sigma_high) >= 0. "
+#            f"f_low={f_low}, f_high={f_high}"
+#        )
 
     sigma = optimize.brentq(objective, sigma_low, sigma_high)
     return sigma
