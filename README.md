@@ -11,6 +11,16 @@ All models are implemented from scratch for learning, transparency, and reproduc
 
 ---
 
+## Visualizations
+
+### Binomial Tree
+![Binomial Tree](images/binomial_tree.png)
+
+### Monte Carlo Convergence
+![Monte Carlo Convergence](images/mc_convergence.png)
+
+---
+
 ## Contents
 
 | Module | Description |
@@ -214,7 +224,8 @@ Interactive notebooks with worked examples and visualizations:
 
 ## Reference
 
-Hull, J. C. (2022). *Options, Futures, and Other Derivatives* (11th ed.). Pearson.
+- Hull, J. C. (2022). *Options, Futures, and Other Derivatives* (11th ed.). Pearson.
+- ChatGPT and Claude  were used to assist with code optimization and documentation.
 
 
 ---
@@ -224,3 +235,4 @@ Hull, J. C. (2022). *Options, Futures, and Other Derivatives* (11th ed.). Pearso
 - [hhlin.work@gmail.com](mailto:hhlin.work@gmail.com)
 - [GitHub](https://github.com/hsiuhsil)
 - [LinkedIn](https://www.linkedin.com/in/hsiuhsil/)
+
