@@ -211,7 +211,7 @@ Interactive notebooks with worked examples and visualizations:
 | `notebooks/Binomial Trees.ipynb` | Tree construction, European & American pricing, visualization |
 | `notebooks/Monte Carlo Simulation.ipynb` | Plain MC, antithetic variates, control variate, convergence |
 | `notebooks/demo of greeks.ipynb` | BSM vs. tree Greeks, sensitivity profiles |
-| `notebooks/implied volatility.ipynb` | Newton-Raphson, Bisection, Brent's method, volatility smile |
+| `notebooks/implied volatility.ipynb` | Newton-Raphson, Bisection, Brent's method |
 | `notebooks/Value at Risk and Expected Shortfall.ipynb` | Historical simulation, parametric methods |
 
 ---
