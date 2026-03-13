@@ -1,9 +1,33 @@
-# calculate and plot the binomial trees
-
 import numpy as np
 
 def _binomial_engine(s, k, u, d, T, N, p, r, dt, 
                      isCall, isPut, isAmerican):
+    """
+    Core engine for binomial option pricing.
+
+    This function constructs the stock price tree and performs
+    backward induction to compute the option value.
+
+    Parameters:
+        s (float): current stock price
+        k (float): strike price
+        u (float): up movement multiplier
+        d (float): down movement multiplier
+        T (float): time to maturity (years)
+        N (int): number of time steps
+        p (float): risk-neutral probability of an up move
+        r (float): risk-free rate
+        dt (float): time step size
+        isCall (bool): True if call option
+        isPut (bool): True if put option
+        isAmerican (bool): True if American exercise allowed
+
+    Returns:
+        price (float): option price
+        stocks (list): stock price tree
+        options (list): option value tree
+        timeline (array): time grid
+    """
 
     stocks, options = [], []
     timeline = np.linspace(0, T, N+1, endpoint=True)
@@ -29,17 +53,30 @@ def _binomial_engine(s, k, u, d, T, N, p, r, dt,
     return options[-1][0], stocks[::-1], options[::-1], timeline
 
 def price_option_tree_no_volatility(option_type, exercise_style, s, k, up, down, T, N, r, q=0, return_tree=False):
-    # from ch 13.4
-    # option_type: 'call' or 'put'
-    # exercise_style: 'European' or 'American'
-    # s: the current stock price
-    # k: the strike price
-    # up: the amount that the stock price will move up in percentage
-    # down: the amount that the stock price will move down in percentage
-    # T: the duration of all steps (in years)
-    # N: the number of time steps in the binomial tree
-    # r: the risk-free rate 
+    """
+    Price an option using a binomial tree with predefined up and down movements.
 
+    Parameters:
+        option_type (str): 'call' or 'put'
+        exercise_style (str): 'European' or 'American'
+        s (float): current stock price
+        k (float): strike price
+        up (float): percentage upward move of the stock price
+        down (float): percentage downward move of the stock price
+        T (float): time to maturity (years)
+        N (int): number of time steps
+        r (float): risk-free rate
+        q (float): dividend yield (not used in this implementation)
+        return_tree (bool): if True, also return the binomial trees
+
+    Returns:
+        float: option price
+
+        If return_tree=True, also returns:
+            stocks (list): stock price tree
+            options (list): option value tree
+            timeline (array): time grid
+    """
 
     if option_type not in ('call','put'):
         raise ValueError("option_type is either `call` or `put`")
@@ -69,16 +106,29 @@ def price_option_tree_no_volatility(option_type, exercise_style, s, k, up, down,
         return price
 
 def price_option_tree(option_type, exercise_style, s, k, r, sigma, T, N, q=0, return_tree=False):
-    # from ch 13.7
-    # option_type: 'call' or 'put'
-    # exercise_style: 'European' or 'American'
-    # s: the current stock price
-    # k: the strike price
-    # sigma: the volatility (0<sigma<1)
-    # T: the duration of all steps (in years)
-    # N: the number of time steps in the binomial tree
-    # r: the risk-free rate 
-    # q: the dividend rate
+    """
+    Price an option using a binomial tree with volatility-based movements.
+
+    Parameters:
+        option_type (str): 'call' or 'put'
+        exercise_style (str): 'European' or 'American'
+        s (float): current stock price
+        k (float): strike price
+        r (float): risk-free rate
+        sigma (float): volatility of the underlying asset
+        T (float): time to maturity (years)
+        N (int): number of time steps
+        q (float): dividend yield
+        return_tree (bool): if True, also return the binomial trees
+
+    Returns:
+        float: option price
+
+        If return_tree=True, also returns:
+            stocks (list): stock price tree
+            options (list): option value tree
+            timeline (array): time grid
+    """
 
     if option_type not in ('call','put'):
         raise ValueError("option_type is either `call` or `put`")
