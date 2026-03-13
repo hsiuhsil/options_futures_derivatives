@@ -2,7 +2,17 @@ import numpy as np
 from scipy.stats import norm
 
 def cumulative_prob(x):
-    return norm.cdf(x, loc=0, scale=1)
+    """
+    Calculate the cumulative distribution function (CDF) of the standard normal distribution.
+
+    Parameters:
+        x (float or array): Value(s) at which to evaluate the CDF. 
+
+    Returns:
+       float or array: CDF value(s) of the standard normal distribution at x.
+
+    """
+    return norm.cdf(x)
 
 def calculate_d1_d2(s, k, r, sigma, T, q=0):
     """
@@ -15,6 +25,9 @@ def calculate_d1_d2(s, k, r, sigma, T, q=0):
         sigma (float or array): volatility
         T (float or array): time to maturity
         q (float or array): dividend yield
+
+    Returns:
+        tuple of np.ndarray: d1 and d2 terms used in the Black-Scholes-Merton formula.
     """
     s = np.asarray(s)
     k = np.asarray(k)
@@ -33,9 +46,24 @@ def calculate_d1_d2(s, k, r, sigma, T, q=0):
     return d1, d2
 
 def price_option_bsm(option_type, exercise_style, s, k, r, sigma, T, q):
-
+    """
+    Compute the Black-Scholes-Merton price of a European option with dividend yield.   
+ 
+    Parameters:
+        option_type (str): either 'call' or 'put'
+        exercise_style: Only 'European' is supported.
+        s (float or array): stock price
+        k (float or array): strike price
+        r (float or array): risk-free rate
+        sigma (float or array): volatility
+        T (float or array): time to maturity
+        q (float or array): dividend yield
+    
+    Returns
+        float or array: Option price computed using the Black-Scholes-Merton formula.
+    """
     if exercise_style!='European':
-        raise ValueError("BSM does not apply to American put options")
+        raise ValueError("BSM applies only to European options")
 
     d1, d2 = calculate_d1_d2(s, k, r, sigma, T, q)
 
