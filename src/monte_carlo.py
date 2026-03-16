@@ -2,7 +2,22 @@ import numpy as np
 from utilities import option_payoff
 
 def simulate_terminal_prices_mc(s, r, sigma, T, q, n_paths=1000, antithetic=False, seed=None):
+    """
+    Simulate terminal stock prices using Monte Carlo under the risk-neutral measure.
 
+    Parameters:
+        s (float): current stock price
+        r (float): risk-free rate
+        sigma (float): volatility of the underlying asset
+        T (float): time to maturity (years)
+        q (float): dividend yield
+        n_paths (int): number of Monte Carlo simulation paths
+        antithetic (bool): if True, use antithetic variates for variance reduction
+        seed (int): random seed for reproducibility
+
+    Returns:
+        array: simulated terminal stock prices
+    """
     if seed is not None:
         np.random.seed(seed)
 
@@ -16,7 +31,27 @@ def simulate_terminal_prices_mc(s, r, sigma, T, q, n_paths=1000, antithetic=Fals
     return s1
 
 def price_option_mc(option_type, exercise_style, s, k, r, sigma, T, q, n_paths=10000, antithetic=False, control_variate=False, seed=None):
+    """
+    Price an option using Monte Carlo simulation.
 
+    Parameters:
+        option_type (str): 'call' or 'put'
+        exercise_style (str): 'European' only
+        s (float): current stock price
+        k (float): strike price
+        r (float): risk-free rate
+        sigma (float): volatility of the underlying asset
+        T (float): time to maturity (years)
+        q (float): dividend yield
+        n_paths (int): number of Monte Carlo simulation paths
+        antithetic (bool): if True, use antithetic variates
+        control_variate (bool): if True, apply control variate variance reduction
+        seed (int): random seed for reproducibility
+
+    Returns:
+        price (float): estimated option price
+        std_err (float): Monte Carlo standard error of the estimate
+    """
     s_final = simulate_terminal_prices_mc(s, r, sigma, T, q, n_paths, antithetic, seed=seed)
     payoffs = option_payoff(option_type, s_final, k)
     discounted_payoffs = np.exp(-r*T)*payoffs

@@ -1,9 +1,16 @@
-# calculate and plot the binomial trees
-
 import numpy as np
 import matplotlib.pyplot as plt
 
 def nodes_coordinates(N):
+    """
+    Generate node coordinates for plotting a binomial tree.
+
+    Parameters:
+        N (int): number of time steps in the tree
+
+    Returns:
+        list: coordinates of nodes at each time step
+    """
     coords = []
     for n in range(N+1):
         coord = []
@@ -13,7 +20,17 @@ def nodes_coordinates(N):
     return coords
 
 def plot_binomial_trees(stocks, options, timeline):
+    """
+    Plot the binomial tree of stock prices and option values.
 
+    Parameters:
+        stocks (list): stock price tree
+        options (list): option value tree
+        timeline (array): time grid for each step
+
+    Returns:
+        None
+    """
     coords = nodes_coordinates(len(stocks))
 
     plt.figure(figsize=(6, 4))
@@ -42,6 +59,3 @@ def plot_binomial_trees(stocks, options, timeline):
     plt.xlim(-0.5, len(stocks))
     plt.tight_layout()
     plt.show()
-
-
-
