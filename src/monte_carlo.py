@@ -1,5 +1,6 @@
 import numpy as np
 from utilities import option_payoff
+from black_scholes_merton import price_option_bsm
 
 def simulate_terminal_prices_mc(s, r, sigma, T, q, n_paths=1000, antithetic=False, seed=None):
     """
