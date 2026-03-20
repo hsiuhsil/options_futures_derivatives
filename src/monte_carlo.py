@@ -79,8 +79,12 @@ def price_option_mc(option_type, exercise_style, s, k, r, sigma, T, q, n_paths=1
     return price, std_err
 
 
-def price_american_lsmc(option_type, s, k, r, sigma, T, q, n_steps, n_paths, 
-                        antithetic=False, control_variate=False, seed=None, return_exercise=False):
+def price_american_lsmc(option_type, s, k, r, sigma, T, q, n_steps, n_paths,
+                        antithetic=False, control_variate=False, seed=None,
+                        return_exercise=False,
+                        poly_order=2,
+                        regression="ols",
+                        ridge_alpha=1e-6):
     """
     Price an American option using Longstaff-Schwartz Monte Carlo (LSMC).
 
@@ -94,22 +98,21 @@ def price_american_lsmc(option_type, s, k, r, sigma, T, q, n_steps, n_paths,
         q (float): dividend yield
         n_steps (int): number of time steps
         n_paths (int): number of simulated paths
-        antithetic (bool, optional): use antithetic variates for variance reduction
-        control_variate (bool, optional): use European option as control variate
-        seed (int or None, optional): random seed for reproducibility
-        return_exercise (bool, optional): if True, also return exercise decisions and stock paths
+
+        antithetic (bool): use antithetic variates
+        control_variate (bool): use European option as control variate
+        seed (int or None): random seed
+        return_exercise (bool): return exercise matrix and paths
+
+        poly_order (int): polynomial order for regression (default=2)
+        regression (str): 'ols' or 'ridge'
+        ridge_alpha (float): ridge regularization strength
 
     Returns
-        price (float): estimated option price
-        std_err (float): standard error of the estimate
-        exercise_matrix (ndarray, optional): exercise decisions (only if return_exercise=True)
-        stocks (ndarray, optional): simulated stock paths (only if return_exercise=True)
-
-    Notes
-        - Stock paths are simulated using GBM under risk-neutral measure.
-        - Continuation value is estimated via regression on [1, S, S^2].
-        - Early exercise is determined by comparing payoff vs continuation value.
-        - Control variate uses discounted European payoff with BSM price.
+        price (float)
+        std_err (float)
+        exercise_matrix (optional)
+        stocks (optional)
     """
 
     if seed is not None:
@@ -118,7 +121,7 @@ def price_american_lsmc(option_type, s, k, r, sigma, T, q, n_steps, n_paths,
     dt = T / n_steps
     discount = np.exp(-r * dt)
 
-    # simulate stock paths
+    # simulate stock returns
     if antithetic:
         half = (n_paths + 1) // 2
         Z_half = np.random.normal(size=(half, n_steps))
@@ -126,33 +129,29 @@ def price_american_lsmc(option_type, s, k, r, sigma, T, q, n_steps, n_paths,
     else:
         Z = np.random.normal(size=(n_paths, n_steps))
 
-    
     stocks = np.zeros((n_paths, n_steps + 1))
-    stocks[:,0] = s
+    stocks[:, 0] = s
 
     for t in range(1, n_steps + 1):
-        stocks[:,t] = stocks[:,t-1] * np.exp(
-            (r - q - 0.5*sigma**2)*dt + sigma*np.sqrt(dt)*Z[:,t-1]
+        stocks[:, t] = stocks[:, t-1] * np.exp(
+            (r - q - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * Z[:, t-1]
         )
 
-    # payoff matrix
-    if option_type == 'call':
-        payoff = np.maximum(stocks-k, 0)
-    elif option_type == 'put':
-        payoff = np.maximum(k-stocks, 0)
+    # the payoff matrix
+    if option_type == "call":
+        payoff = np.maximum(stocks - k, 0)
+    elif option_type == "put":
+        payoff = np.maximum(k - stocks, 0)
     else:
-        raise ValueError('option_type must be call or put')
-    
-    # initialize cashflows at maturity
-    cashflow = payoff[:,-1]
+        raise ValueError("option_type must be call or put")
 
-    exercise_matrix = np.zeros((n_paths, n_steps+1))
+    cashflow = payoff[:, -1]
+    exercise_matrix = np.zeros((n_paths, n_steps + 1))
 
-    # backward induction
-    for t in range(n_steps-1, 0, -1):
+    # the backward induction
+    for t in range(n_steps - 1, 0, -1):
 
-        in_money = payoff[:,t] > 0
-
+        in_money = payoff[:, t] > 0
         X = stocks[in_money, t]
         Y = cashflow[in_money] * discount
 
@@ -160,11 +159,23 @@ def price_american_lsmc(option_type, s, k, r, sigma, T, q, n_steps, n_paths,
             cashflow *= discount
             continue
 
-        # regression basis: [1, s, s**2]
-        A = np.vstack([np.ones_like(X), X, X**2]).T
-        beta = np.linalg.lstsq(A, Y, rcond=None)[0]
+        # the polynomial basis
+        A = np.vstack([X**i for i in range(poly_order + 1)]).T
 
-        continuation = beta[0] + beta[1]*X + beta[2]*X**2
+        # the regression
+        if regression == "ols":
+            beta = np.linalg.lstsq(A, Y, rcond=None)[0]
+
+        elif regression == "ridge":
+            # beta = (A^T A + alpha I)^(-1) A^T Y
+            ATA = A.T @ A
+            ridge = ridge_alpha * np.eye(ATA.shape[0])
+            beta = np.linalg.solve(ATA + ridge, A.T @ Y)
+
+        else:
+            raise ValueError("regression must be 'ols' or 'ridge'")
+
+        continuation = A @ beta
         exercise = payoff[in_money, t]
 
         exercise_now = exercise > continuation
@@ -175,30 +186,28 @@ def price_american_lsmc(option_type, s, k, r, sigma, T, q, n_steps, n_paths,
         cashflow[idx[exercise_now]] = exercise[exercise_now]
         cashflow[idx[~exercise_now]] *= discount
 
-    # discount final cashflows from t=1 to t=0
+    # discount final cashflows
     values = cashflow * discount
     final_values = values
 
+    # control variate
     if control_variate:
         if option_type == "call":
-            euro_payoff = np.maximum(stocks[:,-1] - k, 0)
+            euro_payoff = np.maximum(stocks[:, -1] - k, 0)
         else:
-            euro_payoff = np.maximum(k - stocks[:,-1], 0)
-        euro_discounted = np.exp(-r*T) * euro_payoff
+            euro_payoff = np.maximum(k - stocks[:, -1], 0)
 
-        cov = np.cov(values, euro_discounted)[0,1]
+        euro_discounted = np.exp(-r * T) * euro_payoff
+
+        cov = np.cov(values, euro_discounted)[0, 1]
         var_control = np.var(euro_discounted, ddof=1)
 
-        if var_control > 0:
-            beta = cov / var_control
-        else: # in case if var_control = 0 
-            beta = 0
+        beta_cv = cov / var_control if var_control > 0 else 0
 
-        price_bsm = price_option_bsm(option_type, 'European', s, k, r, sigma, T, q)
+        price_bsm = price_option_bsm(option_type, "European", s, k, r, sigma, T, q)
 
-        adjusted = values + beta * (price_bsm - euro_discounted)
-        final_values = adjusted
-    
+        final_values = values + beta_cv * (price_bsm - euro_discounted)
+
     price = np.mean(final_values)
     std_err = np.std(final_values, ddof=1) / np.sqrt(n_paths)
 
