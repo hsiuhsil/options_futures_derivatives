@@ -15,9 +15,19 @@ All models are implemented from scratch for learning, transparency, and reproduc
 
 ### Binomial Tree
 ![Binomial Tree](images/binomial_tree.png)
+Stock price and option value at each node for a 4-step tree. See [`notebooks/Binomial Trees.ipynb`](notebooks/Binomial%20Trees.ipynb) for details.
 
-### Monte Carlo Convergence
+### Monte Carlo Convergence (European)
 ![Monte Carlo Convergence](images/mc_convergence.png)
+Convergence of European call price as a function of simulation paths, comparing plain MC, antithetic variates, and control variate. See [`notebooks/Monte Carlo Simulation.ipynb`](notebooks/Monte%20Carlo%20Simulation.ipynb) for details.
+
+### LSMC Convergence (American)
+![LSMC Convergence](images/lsmc_convergence.png)
+Convergence of American put price under LSMC versus the binomial tree benchmark, across varying path counts and variance reduction methods. See [`notebooks/Monte Carlo Simulation.ipynb`](notebooks/Monte%20Carlo%20Simulation.ipynb) for details.
+
+### LSMC Exercise Boundary
+![LSMC Exercise Boundary](images/lsmc_boundary.png)
+Heatmap of early exercise probability across time and stock price, with the estimated optimal exercise boundary overlaid. See [`notebooks/Monte Carlo Simulation.ipynb`](notebooks/Monte%20Carlo%20Simulation.ipynb) for details.
 
 ---
 
@@ -249,7 +259,7 @@ print(f"95% ES : {es_95:.4f}")
 
 ## Notebooks
 
-Notebooks with worked examples and visualizations:
+Interactive notebooks with worked examples and visualizations:
 
 | Notebook | Topics Covered |
 |---|---|
