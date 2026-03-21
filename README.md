@@ -94,6 +94,8 @@ plot_binomial_trees(stocks, options, timeline)
 
 ### Monte Carlo Simulation
 
+#### European Options
+
 ```python
 from src.monte_carlo import price_option_mc
 
@@ -120,6 +122,49 @@ price_cv, std_err_cv = price_option_mc(
     n_paths=10000, control_variate=True, seed=42
 )
 print(f"MC price (control variate): {price_cv:.4f} ± {std_err_cv:.4f}")
+```
+
+#### American Options — Longstaff-Schwartz (LSMC)
+
+The Longstaff-Schwartz algorithm prices American options via Monte Carlo by estimating the
+continuation value at each time step using least-squares regression. At each step, the
+algorithm compares the early exercise payoff against the fitted continuation value and
+exercises optimally. The option price is the average discounted payoff across all paths.
+
+```python
+from src.monte_carlo import price_option_lsmc
+
+# Standard LSMC for an American put
+price_lsmc = price_option_lsmc(
+    option_type='put',
+    s=100, k=100, r=0.05, sigma=0.2, T=1.0, q=0.0,
+    n_paths=10000, n_steps=500, seed=42
+)
+print(f"American put (LSMC): {price_lsmc:.4f}")
+
+# LSMC with antithetic variates
+price_av = price_option_lsmc(
+    option_type='put',
+    s=100, k=100, r=0.05, sigma=0.2, T=1.0, q=0.0,
+    n_paths=10000, n_steps=500, antithetic=True, seed=42
+)
+print(f"American put (LSMC + antithetic): {price_av:.4f}")
+
+# LSMC with higher-order polynomial regression
+price_poly = price_option_lsmc(
+    option_type='put',
+    s=100, k=100, r=0.05, sigma=0.2, T=1.0, q=0.0,
+    n_paths=10000, n_steps=500, poly_degree=3, seed=42
+)
+print(f"American put (LSMC, degree-3): {price_poly:.4f}")
+
+# LSMC with ridge-regularized regression
+price_ridge = price_option_lsmc(
+    option_type='put',
+    s=100, k=100, r=0.05, sigma=0.2, T=1.0, q=0.0,
+    n_paths=10000, n_steps=500, ridge=True, seed=42
+)
+print(f"American put (LSMC + ridge): {price_ridge:.4f}")
 ```
 
 ---
@@ -204,32 +249,27 @@ print(f"95% ES : {es_95:.4f}")
 
 ## Notebooks
 
-Interactive notebooks with worked examples and visualizations:
+Notebooks with worked examples and visualizations:
 
 | Notebook | Topics Covered |
 |---|---|
 | `notebooks/Binomial Trees.ipynb` | Tree construction, European & American pricing, visualization |
-| `notebooks/Monte Carlo Simulation.ipynb` | Plain MC, antithetic variates, control variate, convergence |
+| `notebooks/Monte Carlo Simulation.ipynb` | Plain MC, antithetic variates, control variate, convergence; LSMC for American options, variance reduction, polynomial & ridge extensions, exercise boundary heatmap |
 | `notebooks/demo of greeks.ipynb` | BSM vs. tree Greeks, sensitivity profiles |
 | `notebooks/implied volatility.ipynb` | Newton-Raphson, Bisection, Brent's method |
 | `notebooks/Value at Risk and Expected Shortfall.ipynb` | Historical simulation, parametric methods |
 
 ---
 
-## Planned Extensions
-
-- [ ] Longstaff-Schwartz (LSM) algorithm for American options via Monte Carlo
-
----
-
 ## Reference
 
 - Hull, J. C. (2022). *Options, Futures, and Other Derivatives* (11th ed.). Pearson.
-- ChatGPT and Claude  were used to assist with code optimization and documentation.
-
+- Longstaff, F. A., & Schwartz, E. S. (2001). Valuing American options by simulation: A simple least-squares approach. *Review of Financial Studies*, 14(1), 113–147.
+- ChatGPT and Claude were used to assist with code optimization and documentation.
 
 ---
-##  Author
+
+## Author
 
 - **Hsiu-Hsien (Leo) Lin**
 - [hhlin.work@gmail.com](mailto:hhlin.work@gmail.com)
