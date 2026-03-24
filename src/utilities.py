@@ -40,3 +40,25 @@ def discount_factor(r, dt, compounding="continuous", m=1):
         return (1+r/m)**(-m*dt)
     else:
         raise ValueError("compounding must be 'continuous' or 'discrete'")
+
+def present_value(cashflows, r, times, compounding="continuous", m=1):
+    """
+    Compute the present value (PV) of a stream of cashflows.
+
+    Parameters
+        cashflows (float or array-like): Cashflow amounts at each time in `times`.
+        r (float): Annualized interest rate.
+        times (float or array-like): Times to each cashflow in years. Must be the same length as `cashflows`.
+        compounding (str, optional): "continuous" or "discrete"
+        m (int, optional): Number of compounding periods per year (used for discrete compounding)
+ 
+    Returns
+        float: Present value of all cashflows.
+    """
+    cashflows = np.array(cashflows)
+    times = np.array(times)
+
+    if len(cashflows) != len(times):
+        raise ValueError("cashflows and times must have the same length")
+
+    return np.sum(cashflows * discount_factor(r, times, compounding=compounding, m=m))
