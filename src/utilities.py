@@ -20,3 +20,23 @@ def option_payoff(option_type, s_final, k):
 
     else:
         raise ValueError("option_type must be 'call' or 'put'")
+
+def discount_factor(r, dt, compounding="continuous", m=1):
+    """
+    Compute the discount factor using continuous compounding.
+
+    Parameters
+        r (float): Interest rate (annualized)
+        dt (float or array-like): Time to maturity (in years)
+        compounding (str, optional): "continuous" or "discrete"
+        m (int, optional): Number of compounding periods per year (used for discrete compounding)
+
+    Returns
+        float or ndarray: Discount factor(s)
+    """
+    if compounding=="continuous":
+        return np.exp(-r * dt) 
+    elif compounding=="discrete":
+        return (1+r/m)**(-m*dt)
+    else:
+        raise ValueError("compounding must be 'continuous' or 'discrete'")
