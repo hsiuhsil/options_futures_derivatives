@@ -10,7 +10,7 @@ def price_coupon_bond(face_value, coupon_rate, periods, r, dt=1, compounding="co
         coupon_rate (float): Annual coupon rate (as decimal, e.g., 0.05 for 5%).
         periods (int): Total number of coupon payments.
         r (float): Interest rate (annualized).
-        dt (float): Time between coupon payments in years (default 1).
+        dt (float, optional): Time between coupon payments in years (default 1).
         compounding (str, optional): "continuous" or "discrete".
         m (int, optional): Number of compounding periods per year (used for discrete compounding).
     
@@ -99,3 +99,30 @@ def convexity_coupon_bond(face_value, coupon_rate, periods, r, dt=1, delta_r=1e-
     convexity = (value_up + value_down - 2 * value_origin) / (value_origin * delta_r**2)
 
     return convexity
+
+
+def price_change_duration_convexity(face_value, coupon_rate, periods, r, duration, convexity, delta_r, dt=1, compounding="continuous", m=1):
+    """
+    Compute the approximate price change of a coupon bond using duration and convexity.
+    
+    Parameters
+        face_value (float): Bond face value (principal) to be repaid at maturity.
+        coupon_rate (float): Annual coupon rate (as decimal, e.g., 0.05 for 5%).
+        periods (int): Total number of coupon payments.
+        r (float): Interest rate (annualized).
+        duration (float): Macaulay duration.
+        convexity (float): Convexity.
+        delta_r (float): Change in interest rate.
+        dt (float, optional): Time between coupon payments in years (default 1).
+        compounding (str, optional): "continuous" or "discrete".
+        m (int, optional): Number of compounding periods per year (used for discrete compounding).
+    
+    Returns
+        float: The approximate price change of the coupon bond.
+    """
+
+    value = price_coupon_bond(face_value, coupon_rate, periods, r, dt, compounding, m)
+
+    price_change = value * (-duration * delta_r + 0.5 * convexity * delta_r**2)
+
+    return price_change
