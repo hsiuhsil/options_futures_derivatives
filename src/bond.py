@@ -9,9 +9,9 @@ def price_coupon_bond(face_value, coupon_rate, periods, r, dt=1, compounding="co
         face_value (float): Bond face value (principal) to be repaid at maturity.
         coupon_rate (float): Annual coupon rate (as decimal, e.g., 0.05 for 5%).
         periods (int): Total number of coupon payments.
-        r (float): Interest rate (annualized)
+        r (float): Interest rate (annualized).
         dt (float): Time between coupon payments in years (default 1).
-        compounding (str, optional): "continuous" or "discrete"
+        compounding (str, optional): "continuous" or "discrete".
         m (int, optional): Number of compounding periods per year (used for discrete compounding)
     
     Returns
@@ -25,10 +25,25 @@ def price_coupon_bond(face_value, coupon_rate, periods, r, dt=1, compounding="co
     cashflows = np.full(periods, face_value * coupon_rate)
     cashflows[-1] += face_value  # add principal to last payment
     
-    # Generate times of payments
     times = np.arange(1, periods + 1) * dt
     
-    # Compute present value using utilities.py function
     price = present_value(cashflows, r, times, compounding=compounding, m=m)
     
     return price
+
+
+def price_zero_coupon_bond(face_value, r, T, compounding="continuous", m=1):
+    """
+    Compute the present value (price) of a zero-coupon bond.
+    
+    Parameters
+        face_value (float): Bond face value (principal) to be repaid at maturity.
+        r (float): Interest rate (annualized).
+        T (float): Time to maturity in year.
+        compounding (str, optional): "continuous" or "discrete".
+        m (int, optional): Number of compounding periods per year (used for discrete compounding)
+    
+    Returns
+        float: Present value of the zero-coupon bond.
+    """
+    return face_value * discount_factor(r, T, compounding=compounding, m=m)
