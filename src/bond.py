@@ -12,7 +12,7 @@ def price_coupon_bond(face_value, coupon_rate, periods, r, dt=1, compounding="co
         r (float): Interest rate (annualized).
         dt (float): Time between coupon payments in years (default 1).
         compounding (str, optional): "continuous" or "discrete".
-        m (int, optional): Number of compounding periods per year (used for discrete compounding)
+        m (int, optional): Number of compounding periods per year (used for discrete compounding).
     
     Returns
         float: Present value (price) of the coupon bond.
@@ -31,7 +31,6 @@ def price_coupon_bond(face_value, coupon_rate, periods, r, dt=1, compounding="co
     
     return price
 
-
 def price_zero_coupon_bond(face_value, r, T, compounding="continuous", m=1):
     """
     Compute the present value (price) of a zero-coupon bond.
@@ -41,9 +40,35 @@ def price_zero_coupon_bond(face_value, r, T, compounding="continuous", m=1):
         r (float): Interest rate (annualized).
         T (float): Time to maturity in year.
         compounding (str, optional): "continuous" or "discrete".
-        m (int, optional): Number of compounding periods per year (used for discrete compounding)
+        m (int, optional): Number of compounding periods per year (used for discrete compounding).
     
     Returns
         float: Present value of the zero-coupon bond.
     """
     return face_value * discount_factor(r, T, compounding=compounding, m=m)
+
+def macaulay_duration(cashflows, r, times, compounding="continuous", m=1):
+    """
+    Compute the Macaulay duration of a stream of cashflows.
+
+    Parameters
+        cashflows (float or array-like): Cashflow amounts at each time in `times`.
+        r (float): Annualized interest rate.
+        times (float or array-like): Times to each cashflow in years. Must be the same length as `cashflows`.
+        compounding (str, optional): "continuous" or "discrete".
+        m (int, optional): Number of compounding periods per year (used for discrete compounding).
+ 
+    Returns
+        float: Macaulay duration in years.
+    """
+    cashflows = np.array(cashflows)
+    times = np.array(times)
+
+    if len(cashflows) != len(times):
+        raise ValueError("cashflows and times must have the same length")
+
+    discount = discount_factor(r, times, compounding=compunding, m=m)
+    price = np.sum(cashflows * discount)
+    duration = np.sum(times * cashflows * discount) / price
+    
+    return duration
