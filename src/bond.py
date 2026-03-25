@@ -72,3 +72,30 @@ def macaulay_duration(cashflows, r, times, compounding="continuous", m=1):
     duration = np.sum(times * cashflows * discount) / price
     
     return duration
+
+
+def convexity_coupon_bond(face_value, coupon_rate, periods, r, dt=1, delta_r=1e-4, compounding="continuous", m=1):
+    """
+    Compute the convexity of a coupon bond using finite differences.
+    
+    Parameters
+        face_value (float): Bond face value (principal) to be repaid at maturity.
+        coupon_rate (float): Annual coupon rate (as decimal, e.g., 0.05 for 5%).
+        periods (int): Total number of coupon payments.
+        r (float): Interest rate (annualized).
+        dt (float, optional): Time between coupon payments in years (default 1).
+        delta_r (float, optional): Small change in interest rate (default 1e-4).
+        compounding (str, optional): "continuous" or "discrete".
+        m (int, optional): Number of compounding periods per year (used for discrete compounding).
+    
+    Returns
+        float: Convexity of the coupon bond.
+    """
+
+    value_origin = price_coupon_bond(face_value, coupon_rate, periods, r, dt, compounding, m)
+    value_up = price_coupon_bond(face_value, coupon_rate, periods, r + delta_r, dt, compounding, m)
+    value_down = price_coupon_bond(face_value, coupon_rate, periods, r - delta_r, dt, compounding, m)
+
+    convexity = (value_up + value_down - 2 * value_origin) / (value_origin * delta_r**2)
+
+    return convexity
