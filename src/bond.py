@@ -101,6 +101,31 @@ def convexity_coupon_bond(face_value, coupon_rate, periods, r, dt=1, delta_r=1e-
     return convexity
 
 
+def dv01(face_value, coupon_rate, periods, r, dt=1, delta_r=1e-4, compounding="continuous", m=1):
+    """
+    Compute the DV01 (Dollar Value of 1 basis point) of a coupon bond.
+    
+    Parameters
+        face_value (float): Bond face value (principal) to be repaid at maturity.
+        coupon_rate (float): Annual coupon rate (as decimal, e.g., 0.05 for 5%).
+        periods (int): Total number of coupon payments.
+        r (float): Interest rate (annualized).
+        dt (float, optional): Time between coupon payments in years (default 1).
+        delta_r (float, optional): Small change in interest rate (default 1e-4 = 1 basis point).
+        compounding (str, optional): "continuous" or "discrete".
+        m (int, optional): Number of compounding periods per year (used for discrete compounding).
+    
+    Returns
+        float: DV01 of the coupon bond.
+    """
+
+    value_origin = price_coupon_bond(face_value, coupon_rate, periods, r, dt, compounding, m)
+    value_up = price_coupon_bond(face_value, coupon_rate, periods, r + delta_r, dt, compounding, m)
+
+    dv01 = value_origin - value_up
+
+    return dv01
+
 def price_change_duration_convexity(face_value, coupon_rate, periods, r, duration, convexity, delta_r, dt=1, compounding="continuous", m=1):
     """
     Compute the approximate price change of a coupon bond using duration and convexity.
