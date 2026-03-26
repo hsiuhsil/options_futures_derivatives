@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.optimize import root
 from utilities import present_value
 
 def price_coupon_bond(face_value, coupon_rate, periods, r, dt=1, compounding="continuous", m=1):
@@ -151,3 +152,28 @@ def price_change_duration_convexity(face_value, coupon_rate, periods, r, duratio
     price_change = value * (-duration * delta_r + 0.5 * convexity * delta_r**2)
 
     return price_change
+
+def yield_to_maturity(face_value, coupon_rate, periods, price, r0=0.03, dt=1, compounding="continuous", m=1):
+    """
+    Compute the yield to maturity (YTM) of a coupon bond.
+    
+    Parameters
+        face_value (float): Bond face value (principal) to be repaid at maturity.
+        coupon_rate (float): Annual coupon rate (as decimal, e.g., 0.05 for 5%).
+        periods (int): Total number of coupon payments.
+        price (float): Market price of the coupon bond.
+        r0 (float): Initial guess of the interest rate.
+        dt (float, optional): Time between coupon payments in years (default 1).
+        compounding (str, optional): "continuous" or "discrete".
+        m (int, optional): Number of compounding periods per year (used for discrete compounding).
+    
+    Returns
+        float: The yield to maturity (YTM) of the coupon bond.
+    """
+
+    def f(r):
+        return price_coupon_bond(face_value, coupon_rate, periods, r, dt, compounding, m) - price
+
+    ytm = root(f, r0)
+
+    return ytm.x[0]
