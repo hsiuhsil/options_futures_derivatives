@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.optimize import root
-from utilities import present_value
+from utilities import present_value, discount_factor
 
 def price_coupon_bond(face_value, coupon_rate, periods, r, dt=1, compounding="continuous", m=1):
     """
@@ -177,3 +177,41 @@ def yield_to_maturity(face_value, coupon_rate, periods, price, r0=0.03, dt=1, co
     ytm = root(f, r0)
 
     return ytm.x[0]
+
+
+def yield_curve_bootstrap(prices, cashflows, times, r0=0.03, compounding="continuous", m=1):
+    """
+    Compute the yield of curve with bootstrap of a stream of cashflows.
+
+    Parameters
+        prices (array-like): Market prices of the coupon bonds.
+        cashflows (list of arrays): Cashflow for each bond (coupon payments + principal at maturity).
+        times (list of arrays): Times of each cashflow for each bond in years.
+        r0 (float): Initial guess of the interest rate.
+        compounding (str, optional): "continuous" or "discrete".
+        m (int, optional): Number of compounding periods per year (used for discrete compounding).
+ 
+    Returns
+        array: array of zero-coupon yields (annualized) for each bond.
+    """
+
+    n_bonds = len(prices)
+    rates = []
+
+    for i in range(n_bonds):
+        cashflows_i = np.array(cashflows[i])
+        times_i = np.array(times[i])
+
+        def f(r):
+            pv = 0.0
+            for j, time_j in enumerate(times_i):
+                if j < i:  # use previously solved zero rates for earlier cashflows
+                    pv += cashflows_i[j] * discount_factor(rates[j], time_j, compounding, m)
+                else:
+                    pv += cashflows_i[j] * discount_factor(r, time_j, compounding, m)
+            return prices[i] - pv
+
+        res = root(f, r0).x[0]
+        rates.append(res)
+
+    return np.array(rates)
