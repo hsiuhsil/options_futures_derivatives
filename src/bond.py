@@ -48,6 +48,17 @@ def price_zero_coupon_bond(face_value, r, T, compounding="continuous", m=1):
     """
     return face_value * discount_factor(r, T, compounding=compounding, m=m)
 
+def duration_coupon_bond(face_value, coupon_rate, periods, r, dt, compounding="continuous", m=1):
+
+    coupon = face_value * coupon_rate * dt
+
+    cashflows = np.full(periods, coupon)
+    cashflows[-1] += face_value
+
+    times = np.arange(1, periods + 1) * dt
+
+    return macaulay_duration(cashflows, r, times, compounding=compounding, m=m)
+
 def macaulay_duration(cashflows, r, times, compounding="continuous", m=1):
     """
     Compute the Macaulay duration of a stream of cashflows.
@@ -68,7 +79,7 @@ def macaulay_duration(cashflows, r, times, compounding="continuous", m=1):
     if len(cashflows) != len(times):
         raise ValueError("cashflows and times must have the same length")
 
-    discount = discount_factor(r, times, compounding=compunding, m=m)
+    discount = discount_factor(r, times, compounding=compounding, m=m)
     price = np.sum(cashflows * discount)
     duration = np.sum(times * cashflows * discount) / price
     
