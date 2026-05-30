@@ -259,15 +259,16 @@ print(f"95% ES : {es_95:.4f}")
 
 ## Notebooks
 
-Interactive notebooks with worked examples and visualizations:
+Interactive notebooks with worked examples and visualizations.
+> **Note:** GitHub sometimes fails to render large notebooks. Use the nbviewer links below for guaranteed rendering.
 
-| Notebook | Topics Covered |
-|---|---|
-| `notebooks/Binomial Trees.ipynb` | Tree construction, European & American pricing, visualization |
-| `notebooks/Monte Carlo Simulation.ipynb` | Plain MC, antithetic variates, control variate, convergence; LSMC for American options, variance reduction, polynomial & ridge extensions, exercise boundary heatmap |
-| `notebooks/demo of greeks.ipynb` | BSM vs. tree Greeks, sensitivity profiles |
-| `notebooks/implied volatility.ipynb` | Newton-Raphson, Bisection, Brent's method |
-| `notebooks/Value at Risk and Expected Shortfall.ipynb` | Historical simulation, parametric methods |
+| Notebook | Topics Covered | nbviewer |
+|---|---|---|
+| `notebooks/Binomial Trees.ipynb` | Tree construction, European & American pricing, visualization | [view](https://nbviewer.org/github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Binomial%20Trees.ipynb) |
+| `notebooks/Monte Carlo Simulation.ipynb` | Plain MC, antithetic variates, control variate, convergence; LSMC for American options, variance reduction, polynomial & ridge extensions, exercise boundary heatmap | [view](https://nbviewer.org/github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Monte%20Carlo%20Simulation.ipynb) |
+| `notebooks/demo of greeks.ipynb` | BSM vs. tree Greeks, sensitivity profiles | [view](https://nbviewer.org/github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/demo%20of%20greeks.ipynb) |
+| `notebooks/implied volatility.ipynb` | Newton-Raphson, Bisection, Brent's method | [view](https://nbviewer.org/github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/implied%20volatility.ipynb) |
+| `notebooks/Value at Risk and Expected Shortfall.ipynb` | Historical simulation, parametric methods | [view](https://nbviewer.org/github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Value%20at%20Risk%20and%20Expected%20Shortfall.ipynb) |
 
 ---
 
