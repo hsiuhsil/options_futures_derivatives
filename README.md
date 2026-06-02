@@ -15,19 +15,19 @@ All models are implemented from scratch for learning, transparency, and reproduc
 
 ### Binomial Tree
 <img src="images/binomial_tree.png" width="60%"/><br>
-Stock price and option value at each node for a 4-step tree. See <a href="https://nbviewer.org/github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Binomial%20Trees.ipynb">notebooks/Binomial Trees.ipynb</a> for details.
+Stock price and option value at each node for a 4-step tree. See <a href="https://github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Binomial%20Trees.ipynb">notebooks/Binomial Trees.ipynb</a> for details.
 
 ### Monte Carlo Convergence (European)
 <img src="images/mc_convergence.png" width="60%"/><br>
-Convergence of European call price as a function of simulation paths, comparing plain MC, antithetic variates, and control variate. See <a href="https://nbviewer.org/github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Monte%20Carlo%20Simulation.ipynb">notebooks/Monte Carlo Simulation.ipynb</a> for details.
+Convergence of European call price as a function of simulation paths, comparing plain MC, antithetic variates, and control variate. See <a href="https://github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Monte%20Carlo%20Simulation.ipynb">notebooks/Monte Carlo Simulation.ipynb</a> for details.
 
 ### LSMC Convergence (American)
 <img src="images/lsmc_convergence.png"><br>
-Convergence of American put price under LSMC versus the binomial tree benchmark, across varying path counts and variance reduction methods. See <a href="https://nbviewer.org/github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Monte%20Carlo%20Simulation.ipynb">notebooks/Monte Carlo Simulation.ipynb</a> for details.
+Convergence of American put price under LSMC versus the binomial tree benchmark, across varying path counts and variance reduction methods. See <a href="https://github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Monte%20Carlo%20Simulation.ipynb">notebooks/Monte Carlo Simulation.ipynb</a> for details.
 
 ### LSMC Exercise Boundary
 <img src="images/lsmc_boundary.png" width="60%"/><br>
-Heatmap of early exercise probability across time and stock price, with the estimated optimal exercise boundary overlaid. See <a href="https://nbviewer.org/github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Monte%20Carlo%20Simulation.ipynb">notebooks/Monte Carlo Simulation.ipynb</a> for details.
+Heatmap of early exercise probability across time and stock price, with the estimated optimal exercise boundary overlaid. See <a href="https://github/hsiuhsil/options_futures_derivatives/blob/main/notebooks/Monte%20Carlo%20Simulation.ipynb">notebooks/Monte Carlo Simulation.ipynb</a> for details.
 
 ---
 
